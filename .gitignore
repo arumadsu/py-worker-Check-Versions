@@ -20,6 +20,7 @@ env/
 instance/
 *.db
 *.sqlite3
+*.sqlite
 
 # ----------------------
 # Environment
