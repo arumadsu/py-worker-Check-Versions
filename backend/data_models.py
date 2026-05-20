@@ -8,7 +8,7 @@ class AppConfig(BaseModel):
     database_uri: str
     scan_interval: int
     ftp_dir_name: str
-    base_dir: ClassVar[str] = os.path.dirname(os.path.abspath(__file__))
+    base_dir: ClassVar[str] = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
     @property
     def ftp_dir_path(self):

@@ -24,7 +24,7 @@ def read_config(config_path: str) -> data_models.AppConfig:
         scan_interval=config.get('Settings', 'scan_interval', fallback='10')
     )
 
-# 3. Parser and Helpers
+# Parser and Helpers
 def check_file_validity(filepath):
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"File is Not Exists: {filepath}")
@@ -38,7 +38,7 @@ def import_build_info_dynamically(filepath):
     spec = importlib.util.spec_from_file_location(module_name, filepath)
 
     if spec is None: 
-        raise ImportError(f"No se pudo crear la especificación de importación para: {filepath}")
+        raise ImportError(f"Failed to create import specification for: {filepath}")
         
     module = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = module
@@ -60,8 +60,8 @@ def import_build_info_dynamically(filepath):
 
 def get_real_datetime(date_str):
     """
-    Безопасно переводит строку (2026-02-10 14:28:56) в объект времени Питона.
-    Если строка кривая или 'unknown', возвращает 1970 год, чтобы эта версия точно не стала latest.
+    Safely converts the string (2026-02-10 14:28:56) to a Python datetime object.
+    If the string is invalid or 'unknown', returns 1970 to ensure this version doesn't become the latest.
     """
     if date_str == 'unknown':
         return datetime.min # The most minimum date (0001y)
@@ -70,7 +70,7 @@ def get_real_datetime(date_str):
     except ValueError:
         return datetime.min
 
-# 4. Main Cycle
+# Main Cycle
 
 def main(config: data_models.AppConfig):
 
