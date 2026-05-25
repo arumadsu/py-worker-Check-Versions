@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>OTA Updater Pro</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #c0c0c0;
+            font-family: Arial, sans-serif;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            color: #c0c0c0;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #2e2e2e;
+        }
+        tr:nth-child(even) {
+            background-color: #2e2e2e;
+        }
+        tr:hover {
+            background-color: #444;
+        }
+        .highlight {
+            background-color: #005f5f !important;
+            color: #fff;
+        }
+        .latest-row {
+            border-left: 4px solid #005f5f;
+        }
+        button, .btn {
+            background-color: #005f5f;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            margin-top: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        button:hover, .btn:hover {
+            background-color: #007f7f;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>OTA Updater Pro (gRPC Powered)</h1>
+
+    <div class="controls">
+        <button type="button" id="refresh-button" onclick="window.location.reload();">Refresh List</button>
+
+        {% if showing_all %}
+            <a href="/" class="btn">Show only relevant (Top 3 + Tests)</a>
+        {% else %}
+            <a href="/?show_all=true" class="btn">Show absolutely all versions</a>
+        {% endif %}
+    </div>
+
+    <form action="/update" method="post" id="update-form">
+        <table id="versions-table">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Folder Name</th>
+                    <th>BUILD_TAG</th>
+                    <th>BUILD_VERSION</th>
+                    <th>GIT_RELEASE_HASH</th>
+                    <th>GIT_RELEASE_TAG</th>
+                    <th>GIT_RELEASE_DATETIME</th>
+                    <th>GIT_BRANCH</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for version in versions %}
+                <tr class="{% if version.is_latest %}latest-row{% endif %}" data-build-tag="{{ version.build_tag }}">
+                    <td><input type ="radio" name="selected_version" value="{{ version.dir_name }}" required></td>
+                    <td>{{ version.dir_name }}</td>
+                    <td>{{ version.build_tag }}</td>
+                    <td>{{ version.build_version }}</td>
+                    <td>{{ version.git_release_hash }}</td>
+                    <td>{{ version.git_release_tag }}</td>
+                    <td>{{ version.git_release_datetime }}</td>
+                    <td>{{ version.git_branch }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td> colspan="8" style="text-align: center;">No data. The worker hasn't downloaded the versions yet, or the server is unavailable.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">Update</button>
+    </form>
+
+    <div id="pull-progress" style="display: none;">
+        <h3>Pulling Images (gRPC Stream):</h3>
+        <pre id="pull-output" style="background-color: #2e2e2e; padding: 10px; border: 1px solid #333; height: 300px; overflow-y: scroll; color: #c0c0c0;"></pre>
+    </div>
+
+    <div id="reloading" style="display: none;">
+        <h3>Reloading System...</h3>
+    </div>
+
+    <script>
+        var form = document.getElementById('update-form');
+        form.addEventListener('submit', function(e) {
+            document.getElementById('pull-progress').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
